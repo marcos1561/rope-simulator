@@ -5,7 +5,26 @@ from rope_elements import Point, Spring, Side
 from config import ElementConfig, CreateConfig
 
 class Rope:
+    '''
+    Creates and give the plot of the rope.
+
+    Hereafter, node is equivalent to point mass.
+    '''
+
     def __init__(self, curve: Curve, element_cfg: ElementConfig, create_cfg = CreateConfig()) -> None:
+        '''
+        Parameters:
+        -----------
+        curve:
+            Parametric curve that describes the inicial shape of the rope.  
+
+        element_cfg:
+            Rope elements configuration. See `config.py` documentation for more info.
+        
+        crete_cfg:
+            Configurations for how to construct the rope. See `config.py` documentation for more info.
+        '''
+
         self.curve = curve
         
         self.point_mass = element_cfg.mass
@@ -19,6 +38,14 @@ class Rope:
         self.points = []
 
     def create(self):
+        '''
+        The rope is constructed by placing nodes and springs in series, fallowing the `self.curve`.
+        
+        Neighboring springs of the node are attached to the node. 
+
+        The first and last node are fixed.
+        '''
+
         self.points = [Point(self.curve.curve(0), self.point_mass/2, fix=True)]
         s = self.spring_length
 
@@ -40,6 +67,10 @@ class Rope:
         self.num_points = len(self.points)
     
     def plot(self):
+        '''
+        Graph of the rope (node positions).
+        '''
+
         x_list = np.zeros(self.num_points)
         y_list = np.zeros(self.num_points)
         for id in range(self.num_points):

@@ -3,19 +3,30 @@ import numpy as np
 from constant import G
 
 class Solver:
+    '''
+    Differential solver for newton second law.
+    '''
     def __init__(self, points: list[Point], dt: float) -> None:
+        '''
+        Parameters:
+            points:
+                Rope nodes in order.
+        '''
         self.points = points
         self.dt = dt
 
         self.tensions = np.zeros(len(self.points))
 
-    def spring_forces(self, rope_element: Point, sides=Side.sides()):
+    def spring_forces(self, node: Point, sides=Side.sides()):
+        '''
+        Total force applied to the `node` by it's attached springs in the `sides`.
+        '''
         springs_force_total = np.zeros(2)
         springs_force_max = 0
         damping_force = np.zeros(2)
         for side in sides:
             side: int
-            s = rope_element.springs[side]
+            s = node.springs[side]
 
             if s == None:
                 continue
@@ -38,11 +49,14 @@ class Solver:
                 neighbor_side = Side.right
 
             # damping_force += - (vec.dot((p.vel - s.points[side].get_vel(neighbor_side))) * p.damping) * vec
-            damping_force += - ((rope_element.vel - s.points[side].get_vel(neighbor_side)) * rope_element.damping)
+            damping_force += - ((node.vel - s.points[side].get_vel(neighbor_side)) * node.damping)
 
         return springs_force_total, damping_force, springs_force_max
 
     def update(self):
+        '''
+        Advance one time step.
+        '''
         ids: list[int] = []
         new_pos = []
         new_vel = []

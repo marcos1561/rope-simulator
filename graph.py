@@ -20,6 +20,10 @@ class PlotMode:
     color_tension = 1
 
 class RopeGraph(ABC):
+    '''
+    Rope graph manager. It is responsible for initialize and update the rope graph.
+    '''
+
     @abstractmethod
     def __init__(self, fig: Figure, ax: Axes, rope: Rope, additional_pars: dict, cfg) -> None:
         self.fig = fig
@@ -31,13 +35,22 @@ class RopeGraph(ABC):
 
     @abstractmethod
     def init(self):
+        '''
+        Initial plot.
+        '''
         pass
 
     @abstractmethod
     def update(self):
+        '''
+        Updates the plot.
+        '''
         pass
 
     def adjust_limits(self, y: np.ndarray):
+        '''
+        Make sure all the rope is always on view.
+        '''
         ymin = self.ax.get_ylim()[0]
         rope_ymin = y.min()
 
@@ -45,6 +58,10 @@ class RopeGraph(ABC):
             self.ax.set_ylim(bottom=rope_ymin * 1.1)
 
 class Points(RopeGraph):
+    '''
+    Plot the rope with black dots been rope nodes and dark lines been springs.
+    '''
+
     def __init__(self, fig: Figure, ax: Axes, rope: Rope, additional_pars: dict, cfg) -> None:
         super().__init__(fig, ax, rope, additional_pars, cfg)
         self.graph: Line2D = None
@@ -61,6 +78,10 @@ class Points(RopeGraph):
         self.adjust_limits(y)
 
 class ColorTension(RopeGraph):
+    '''
+    Plot the rope with color representing the intensity of the tension.
+    '''
+
     def __init__(self, fig: Figure, ax: Axes, rope: Rope, additional_pars: dict, cfg) -> None:
         super().__init__(fig, ax, rope, additional_pars, cfg)
 

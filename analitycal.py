@@ -4,10 +4,36 @@ from scipy import integrate
 
 from config import ElasticCableConfig
 
-def catenaria(x, a):
-    return a *(np.cosh(x/a) - np.cosh(x[0]/a))
+def catenary(x0: float, y0: float, n=1000):
+    '''
+    Graph of the catenary which passes through the point (x0, y0) with x ranging between -xo and x0 
+    in a coordinate system where the catenary minimum is at origin. The returned graph is in a 
+    coordinate system where 0 < x < 2xo, y(0) = 0 and y(x0) = -y0, in other words, the graph was
+    translated x0 units right and y0 units down.
+    '''
+    def func(x):
+        return x * np.arccosh(y0/x + 1) - x0
+
+    for init_a in np.logspace(-1, 4, 50, base=10):
+        try:
+            a = fsolve(func, init_a, maxfev=1000)[0]
+            
+            if func(a) > 1e-4:
+                raise Exception()
+            
+            break
+        except Exception:
+            pass
+
+    x = np.linspace(0, 2*x0, n)
+    y = a *(np.cosh((x - x0)/a) - np.cosh(x0/a))
+
+    return x, y
 
 class EqSlope:
+    '''
+    Equation that the slope of an elastic cable must satisfied.
+    '''
     def __init__(self, a, b) -> None:
         self.a = a
         self.b = b
@@ -17,13 +43,19 @@ class EqSlope:
     def func(self, z):
         return z - np.sinh(self.x/self.a - self.b * z) 
 
-def elastic_cable(n: int, gap_lenght:float, cfg: ElasticCableConfig):
-    a = cfg.horizontal_tension / cfg.weight_density
-    b= a * cfg.weight_density / (cfg.elastic_constant * cfg.cross_section_area)
+def elastic_cable(horizontal_tension: float, gap_length:float, cable_cfg: ElasticCableConfig, n=1000):
+    '''
+    Graph of an elastic cable with a given gap and horizontal tension, with x ranging between
+    0 and `gap_length` in a coordinate system where y(0) = y(`gap_length`) = 0.
+
+    The properties of the cable are in `cable_cfg`, for more info see documentation in `config.py`.
+    '''
+    a = horizontal_tension / cable_cfg.weight_density
+    b= a * cable_cfg.weight_density / (cable_cfg.elastic_constant * cable_cfg.cross_section_area)
 
     eq = EqSlope(a, b)
 
-    x = np.linspace(-gap_lenght/2, gap_lenght/2, n)
+    x = np.linspace(-gap_length/2, gap_length/2, n)
     derivate = np.zeros(x.size)
 
     init_x = np.sinh(x/a)/(b+1)
@@ -50,4 +82,12 @@ def elastic_cable(n: int, gap_lenght:float, cfg: ElasticCableConfig):
     # plt.legend()
     # plt.show()
 
-    return x+gap_lenght/2, cable_y
+    return x+gap_length/2, cable_y
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    x, y = catenary(1, 1)
+
+    plt.plot(x, y)
+    plt.show()

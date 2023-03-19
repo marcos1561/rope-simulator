@@ -3,14 +3,27 @@ from numpy.linalg import norm
 from abc import ABC, abstractmethod
 
 class Curve(ABC):
+    '''
+    A parametrized curve with the parameter being it's length.
+    '''
+
     def __init__(self) -> None:
-        self.length: float  
+        self.length: float # Total lenght of the curve   
 
     @abstractmethod
     def curve(self, s:float):
+        '''
+        Parametric function, where `s` is the parameters.
+
+        This function must return the point (x(s), y(s)).
+        '''
         pass
 
 class Line(Curve):
+    '''
+    Straight line between two points
+    '''
+
     def __init__(self, a: np.ndarray, b: np.ndarray) -> None:
         c = b - a
         self.c = c/norm(c)
@@ -21,6 +34,10 @@ class Line(Curve):
         return s * self.c 
 
 class UCurve(Curve):
+    '''
+    Curve in the form of the letter u.
+    '''
+
     def __init__(self, length:float, height: float) -> None:
         self.height = height
         self.ulength = length

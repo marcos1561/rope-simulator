@@ -3,7 +3,15 @@ import numpy as np
 from constant import G
 
 class RopeConfig:
+    '''
+    Properties of the rope that will be simulated.
+    '''
+
     def __init__(self, elastic_constant: float, diameter: float, mass_density: float = None, weight_density: float = None) -> None:
+        '''
+        All units are in IS.
+        '''
+
         if weight_density == None and mass_density == None:
             raise TypeError("CableConfig.__init__() não pode ter ambos 'mass_density' e 'weight_density' não fornecidos.")
 
@@ -55,9 +63,34 @@ class RopeConfig:
         return self.__area
 
 class ElementConfig:
-    def __init__(self, k: float = None, lenght: float = None, mass: float = None, damping: float = 0) -> None:
+    '''
+    Properties of rope elements. There are two types os elements:
+    
+    -> Mass point
+
+    -> Massless spring
+    '''
+    
+    def __init__(self, k: float = None, length: float = None, mass: float = None, damping: float = 0) -> None:
+        '''
+        Mass point Properties:
+        ----------------------
+        mass:
+
+        damping:
+            The factor of the force that oppose to relative velocity of mass point with respect to it's neighbors.
+
+        Massless Spring Properties:
+        ---------------------------
+        k: 
+            spring constant.
+        
+        length:
+            Length of the spring at equilibrium.
+        '''
+
         self.k = k
-        self.lenght = lenght
+        self.lenght = length
         self.mass = mass
         self.damping = damping
     
@@ -70,22 +103,46 @@ class ElementConfig:
         )
 
 class CreateConfig:
+    '''
+    Configuration for how the spring must be constructed.
+    '''
+
     def __init__(self, multiplier: float = 1) -> None:
+        '''
+        Parameters:
+        -----------
+            multiplier:
+                When building the spring using a parametrized curve, after a node is placed, the curve parameter is increased by
+                the spring length times `multiplier`.
+                With a line curve, `multiplier > 1` causes the curve to start with some tension.
+        '''
+
         self.multiplier = multiplier
 
 class ColorTensionConfig:
+    '''
+    Configuration for the rope plot, where colors in the rope indicate the intensity of
+    the tension at that point.
+    '''
+
     def __init__(self, max:float = None, min:float = None) -> None:
         self.max = max
         self.min = min
 
 class ElasticCableConfig:
-    def __init__(self, horizontal_tension: float, weight_density: float, cross_section_area: float, elastic_constant) -> None:
-        self.horizontal_tension = horizontal_tension
+    '''
+    Properties for an elastic cable.
+    '''
+
+    def __init__(self, weight_density: float, cross_section_area: float, elastic_constant) -> None:
         self.weight_density= weight_density
         self.cross_section_area = cross_section_area
         self.elastic_constant = elastic_constant
 
 class RigidCableConfig:
+    '''
+    Parameters for a rigid cable (elastic constant tends to infinity).
+    '''
     def __init__(self, flecha: float, weight_density: float, gap: float) -> None:
         self.flecha = flecha
         self.weight_density= weight_density

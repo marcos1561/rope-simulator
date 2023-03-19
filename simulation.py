@@ -2,14 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import matplotlib.animation as animation
-from matplotlib.collections import LineCollection
-from matplotlib.colors import ListedColormap, BoundaryNorm
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from matplotlib.collections import LineCollection
 
+# from PauloTCC.cabo import Cabo
 import analitycal
-from PauloTCC.cabo import Cabo
 import curves
 from solver import Solver
 from rope import Rope, Side
@@ -25,26 +20,33 @@ class ElasticInfo:
         self.tension: np.ndarray = None
 
 class Simulation: 
-    def __init__(self, cable_cfg: RopeConfig, element_cfg: ElementConfig, create_cfg: CreateConfig, curve: curves.Curve, dt:float,
-            plot_mode=PlotMode.points, rope_graph_cfg=None, show_tension=False) -> None:
-        self.cable_cfg = cable_cfg
+    '''
+    Simulated the rope with the given configurations and plot the simulation.
+    '''
+
+    def __init__(self, rope_cfg: RopeConfig, element_cfg: ElementConfig, create_cfg: CreateConfig, curve: curves.Curve, dt:float,
+            rope_plot_mode=PlotMode.points, rope_graph_cfg=None, show_tension=False) -> None:
+        self.cable_cfg = rope_cfg
         self.element_cfg = element_cfg
         self.curve = curve
 
-        self.set_springs_parameters(cable_cfg, element_cfg)
+        self.set_springs_parameters(rope_cfg, element_cfg)
 
         self.rope = Rope(curve=curve, element_cfg=element_cfg, create_cfg=create_cfg)
         self.rope.create()
         self.solver = Solver(self.rope.points, dt)
 
-        self.plot_mode = plot_mode
+        self.plot_mode = rope_plot_mode
         self.rope_graph_cfg = rope_graph_cfg
         self.show_tension = show_tension
 
-
-    
     @staticmethod
     def set_springs_parameters(cable_cfg: RopeConfig, element_cfg: ElementConfig):
+        '''
+        Set the rope spring element properties, such that the modeled rope macroscopic properties are
+        the same as `self.rope_cfg`.
+        '''            
+
         if element_cfg.lenght != None:
             element_cfg.k = cable_cfg.elastic_constant * cable_cfg.area / element_cfg.lenght
             element_cfg.mass = cable_cfg.mass_density * element_cfg.lenght
@@ -56,6 +58,9 @@ class Simulation:
             element_cfg.k = cable_cfg.elastic_constant * cable_cfg.area / element_cfg.lenght
 
     def run(self):
+        '''
+        Run the simulation while plotting it.
+        '''
         self.rigid_info = RigidInfo()
         self.elastic_info = ElasticInfo()
 
@@ -68,7 +73,7 @@ class Simulation:
         ax_rope.set_ylim(-1, 0.5)
         ####
 
-        # Create rope graph manager ###
+        # Creates rope graph manager ###
         additional_pars = None
         if self.plot_mode == PlotMode.color_tension:
             additional_pars = {"solver": self.solver}
@@ -144,34 +149,38 @@ class Simulation:
         elastic_tension = self.solver.spring_forces(self.rope.points[0], [Side.right])[0]
         self.elastic_info.tension = elastic_tension
 
-        analytical_cfg = ElasticCableConfig(elastic_tension[0], self.cable_cfg.weight_density, self.cable_cfg.area, self.cable_cfg.elastic_constant)
-        x, y = analitycal.elastic_cable(1000, self.curve.length, analytical_cfg)
+        gap = self.curve.length
+        horizontal_tension = elastic_tension[0]
+        cable_cfg = ElasticCableConfig(self.cable_cfg.weight_density, self.cable_cfg.area, self.cable_cfg.elastic_constant)
+        x, y = analitycal.elastic_cable(horizontal_tension, gap, cable_cfg)
 
         return x, y
 
     def rigid_cable_graph(self):
         flecha = self.rope.points[0].pos[1]
-        length = 0
+        # length = 0
         for p in self.rope.points[1:]:
-            length += np.linalg.norm(p.pos - p.springs[Side.left].get_pos(Side.left))
+            # length += np.linalg.norm(p.pos - p.springs[Side.left].get_pos(Side.left))
             if p.pos[1] < flecha:
                 flecha = p.pos[1]
         flecha = abs(flecha)
-
-        total_mass = len(self.rope.points) * self.rope.point_mass
-        w_o = total_mass / length * G
         gap = self.curve.length
 
-        cabo = Cabo(flecha, gap, w_o)
+        # total_mass = len(self.rope.points) * self.rope.point_mass
+        # w_o = total_mass / length * G
 
-        try:
-            cabo.calc_grandezas_todas()
-        except Exception as e:
-            pars = {"w_o": w_o, "gap": gap, "flecha": flecha}
-            print(f"Erro em gráfico rígido: pars={pars}")
-            return
+        # cabo = Cabo(flecha, gap, w_o)
 
-        self.rigid_info.max_tension = cabo.T_max
-        x, y = cabo.catenaria_grafico()
+        # try:
+        #     cabo.calc_grandezas_todas()
+        # except Exception as e:
+        #     pars = {"w_o": w_o, "gap": gap, "flecha": flecha}
+        #     print(f"Erro em gráfico rígido: pars={pars}")
+        #     return
+
+        # self.rigid_info.max_tension = cabo.T_max
+        # x, y = cabo.catenaria_grafico()
+
+        x, y = analitycal.catenary(x0=gap/2, y0=flecha)
         return x, y
 

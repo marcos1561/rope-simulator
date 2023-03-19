@@ -11,7 +11,6 @@ class RopeConfig:
         '''
         All units are in IS.
         '''
-
         if weight_density == None and mass_density == None:
             raise TypeError("CableConfig.__init__() não pode ter ambos 'mass_density' e 'weight_density' não fornecidos.")
 
@@ -129,9 +128,9 @@ class ColorTensionConfig:
         self.max = max
         self.min = min
 
-class ElasticCableConfig:
+class ElasticRopeConfig:
     '''
-    Properties for an elastic cable.
+    Properties for an elastic rope.
     '''
 
     def __init__(self, weight_density: float, cross_section_area: float, elastic_constant) -> None:
@@ -139,9 +138,9 @@ class ElasticCableConfig:
         self.cross_section_area = cross_section_area
         self.elastic_constant = elastic_constant
 
-class RigidCableConfig:
+class RigidRopeConfig:
     '''
-    Parameters for a rigid cable (elastic constant tends to infinity).
+    Parameters for a rigid rope (elastic constant tends to infinity).
     '''
     def __init__(self, flecha: float, weight_density: float, gap: float) -> None:
         self.flecha = flecha

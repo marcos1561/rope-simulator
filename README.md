@@ -5,7 +5,7 @@ No arquivo `main.py`, sete as propriedades da corda, as propriedades dos element
 
 ## Como usar
 
-Após instanciar um objeto da classe `Simulation` em `simulation.py`, para iniciar a simulação apenas é necessário chamar o método `run` do objeto em questão.
+Primeiro é necessário instanciar um objeto da classe `Simulation` (que está em `simulation.py`), então, para iniciar a simulação apenas é necessário chamar o método `run` do objeto em questão.
 
 Em sequência, segue com mais detalhamento o que deve ser feito para conseguir criar uma instância de `Simulation`.
 
@@ -14,8 +14,8 @@ Em sequência, segue com mais detalhamento o que deve ser feito para conseguir c
 Primeiro é necessário setar as configurações da simulação, que estão contidas em classes.
 As seguintes classes de configuração devem ser instanciadas e passadas para o construtor de `Simulation`:
 
-- `RopeConfig`: Parâmetros da corda a ser simulada.
-- `RopeConfig`: Parâmetros dos elementos que compõem o modelo da corda.
+- `RopeConfig`: Propriedades da corda a ser simulada.
+- `RopeConfig`: Propriedades dos elementos que compõem o modelo da corda.
 - `CreateConfig`: Configuração para a construção da corda.
 
 > O arquivo `main.py` já possui essas classes instanciadas, então é possível apenas editá-lo para suas preferências.

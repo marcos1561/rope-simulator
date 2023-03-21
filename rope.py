@@ -61,8 +61,10 @@ class Rope:
             s += self.spring_length* self.create_cfg.multiplier
         
         self.points[-1].mass *= 1/2
-        self.points[-1].pos[0] = self.curve.length
-        self.points[-1].fix = True
+        self.points[-1].pos = self.curve.curve(self.curve.length)
+        
+        if self.create_cfg.last_fix:
+            self.points[-1].fix = True
 
         self.num_points = len(self.points)
     

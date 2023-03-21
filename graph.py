@@ -4,6 +4,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
+from matplotlib.text import Text
 from matplotlib.artist import Artist
 import numpy as np
 from abc import ABC, abstractmethod
@@ -13,6 +14,7 @@ from rope import Rope, Side
 from config import ColorTensionConfig, ElasticRopeConfig, RopeConfig
 import analitycal
 from constant import G
+from timer import TimeIt
 
 class PlotMode:
     points = 0
@@ -68,7 +70,7 @@ class Points(RopeGraph):
     def init(self):
         x, y = self.rope.plot()
         self.graph, = self.ax.plot(x, y, "o-", color="Black")
-
+        
     def update(self):
         x, y = self.rope.plot()
         self.graph.set_xdata(x)
@@ -108,7 +110,7 @@ class ColorTension(RopeGraph):
         points = np.array([x, y]).T.reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
         
-        self.graph.set_norm(plt.Normalize(self.solver.tensions.min(), self.solver.tensions.min()))
+        self.graph.set_norm(plt.Normalize(self.solver.tensions.min(), self.solver.tensions.max()))
         self.graph.set_segments(segments)
         self.graph.set_array(self.solver.tensions)
             
@@ -234,8 +236,28 @@ class TensionGraph:
         if max_tension*1.1 > ymax:
             self.ax.set_ylim(top=max_tension*1.1)
 
+class Info:
+    def __init__(self, ax: Axes, solver: Solver, time_it: TimeIt) -> None:
+        self.ax = ax
+        self.solver = solver
+        self.time_it = time_it
 
+        self.text: Text = None
 
+    def get_info(self):
+        return (
+            f"Energia: {self.solver.energy():.5f}\n"
+            f"$\Delta$T (ms): {self.time_it.mean_time():.3f}"
+        )
+            
+    def init(self):
+        self.ax.axis('off')
+        s = self.get_info()
+        self.text = self.ax.text(0, 0, s)
+
+    def update(self):
+        s = self.get_info()
+        self.text.set_text(s)
 
 
 rope_graph_manager_type: dict[int, RopeGraph] = {PlotMode.points: Points, PlotMode.color_tension: ColorTension}

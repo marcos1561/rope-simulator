@@ -106,7 +106,7 @@ class CreateConfig:
     Configuration for how the spring must be constructed.
     '''
 
-    def __init__(self, multiplier: float = 1) -> None:
+    def __init__(self, multiplier: float = 1, last_fix=True) -> None:
         '''
         Parameters:
         -----------
@@ -117,6 +117,7 @@ class CreateConfig:
         '''
 
         self.multiplier = multiplier
+        self.last_fix = last_fix
 
 class ColorTensionConfig:
     '''

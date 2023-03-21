@@ -53,7 +53,7 @@ class Spring:
     
     @property
     def current_lenght(self):
-        return np.linalg.norm(self.pos(Side.left) - self.pos(Side.right))
+        return np.linalg.norm(self.get_pos(Side.left) - self.get_pos(Side.right))
 
 class Point:
     '''

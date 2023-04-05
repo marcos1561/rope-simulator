@@ -46,12 +46,27 @@ class UCurve(Curve):
 
     def curve(self, s: float):
         if s < self.height:
-            return np.array([0, -1]) * s
+            return np.array([0, -1, 0]) * s
         elif s < (self.height + self.ulength):
-            return np.array([0, -self.height]) + np.array([s-self.height, 0])
+            return np.array([0, -self.height, 0]) + np.array([s-self.height, 0, 0])
         else:
-            return np.array([self.ulength, -self.height]) + np.array([0, s - self.height - self.ulength])
+            return np.array([self.ulength, -self.height, 0]) + np.array([0, s - self.height - self.ulength, 0])
 
 
 
+class SemiUCurve(Curve):
 
+    def __init__(self, length:float, height: float) -> None:
+        self.height = height
+        self.gap = length
+
+        self.hipotenusa_dir = np.array([length, 0, 0]) - np.array([0, -height, 0])
+        self.hipotenusa_dir = self.hipotenusa_dir / np.linalg.norm(self.hipotenusa_dir)  
+
+        self.length = (self.gap**2 + self.height**2)**.5 + self.height
+
+    def curve(self, s: float):
+        if s < self.height:
+            return np.array([0, -1, 0]) * s
+        else:
+            return np.array([0, -self.height, 0]) + (s-self.height) * self.hipotenusa_dir

@@ -75,9 +75,11 @@ class Rope:
 
         x_list = np.zeros(self.num_points)
         y_list = np.zeros(self.num_points)
+        z_list = np.zeros(self.num_points)
         for id in range(self.num_points):
             x_list[id] = self.points[id].pos[0]
             y_list[id] = self.points[id].pos[1]
+            z_list[id] = self.points[id].pos[2]
 
             # xs = [self.points[id -1].pos[0], self.points[id].pos[0]]
             # ys = [self.points[id -1].pos[1], self.points[id].pos[1]]
@@ -90,5 +92,5 @@ class Rope:
             # plt.scatter(xs, ys)
         # plt.show()
 
-        return x_list, y_list
+        return x_list, y_list, z_list
 

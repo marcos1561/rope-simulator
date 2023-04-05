@@ -1,6 +1,6 @@
 from rope_elements import Point, Side
 import numpy as np
-from constant import G
+from constant import G, gravity_acel
 
 class Solver:
     '''
@@ -14,16 +14,19 @@ class Solver:
         '''
         self.points = points
         self.dt = dt
+        self.time = 0
+        self.middle_id = len(points)//2
 
         self.tensions = np.zeros(len(self.points))
+        self.acceleration = np.zeros(len(self.points))
 
     def spring_forces(self, node: Point, sides: list[int]=Side.sides()):
         '''
         Total force applied to the `node` by it's attached springs in the sides `sides`.
         '''
-        springs_force_total = np.zeros(2)
+        springs_force_total = np.zeros(3)
         springs_force_max = 0
-        damping_force = np.zeros(2)
+        damping_force = np.zeros(3)
         for side in sides:
             side: int
             s = node.springs[side]
@@ -53,13 +56,37 @@ class Solver:
 
         return springs_force_total, damping_force, springs_force_max
 
-    def point_acceleration(self, point: Point, update_tensions=False, id=None):
+    def wind_force(self, node: Point):
+        if node.fix:
+            return np.zeros(3)
+
+        wind_force_density = 1
+            
+        wind_dir = np.array([0, 0, 1])
+        p1 = node.springs[Side.left].get_pos(Side.left) - node.pos
+        p2 = node.springs[Side.right].get_pos(Side.right) - node.pos
+
+        ds1 = 1/2 * np.linalg.norm(p1 - (p1.dot(wind_dir))*wind_dir)
+        ds2 = 1/2 * np.linalg.norm(p2 - (p2.dot(wind_dir))*wind_dir)
+        
+        wind_force = (ds1 + ds2) * wind_force_density * wind_dir
+        return wind_force
+
+    def point_acceleration(self, point: Point, update_tensions=False, update_accel=False, id=None):
         springs_force, damping_force, spring_force_max = self.spring_forces(point)        
+
+        # wind_force = self.wind_force(point)
+            
+        # damping_force = -point.damping * np.linalg.norm(point.vel) * point.vel 
+        weight = gravity_acel * point.mass
+
+        acceleration = 1/point.mass*(springs_force + weight + damping_force)
+        
+        if update_accel:
+            self.acceleration[id] = np.linalg.norm(acceleration)
         if update_tensions:
             self.tensions[id] = spring_force_max
 
-        weight = np.array([0, -1]) * G * point.mass
-        acceleration = 1/point.mass*(springs_force + weight + damping_force)
         return acceleration
 
     def energy(self):
@@ -93,7 +120,7 @@ class Solver:
             ## Runge kutta ##
             pos0, vel0 = p.pos, p.vel
 
-            accel = self.point_acceleration(p, update_tensions=True, id=id)
+            accel = self.point_acceleration(p, update_tensions=True, update_accel=True, id=id)
             k11 = p.vel
             k21 = accel
 
@@ -133,6 +160,7 @@ class Solver:
             new_pos.append(next_pos)
             new_vel.append(next_vel)
             ids.append(id)
+            self.time += self.dt
         
         for id, pos, vel in zip(ids, new_pos, new_vel):
             self.points[id].pos = pos 

@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import matplotlib.animation as animation
 
-# from PauloTCC.cabo import Cabo
 import curves
 from solver import Solver
 from rope import Rope
@@ -59,15 +58,27 @@ class Simulation:
         '''
         Run the simulation while plotting it.
         '''
-        ## Create and set figure and axes ###
-        if self.show_tension:
-            fig, (ax_rope, ax_tension) = plt.subplots(1, 2, figsize=(14, 6))
-            ax_tension.set_ylim(0, 0.01)
+        ### Create and set figure and axes ###
+        if self.plot_mode == PlotMode.three_d:
+            fig = plt.figure(figsize=(14, 6))
+            
+            if self.show_tension:
+                ax_rope = fig.add_subplot(1, 2, 1, projection='3d')
+                ax_tension = fig.add_subplot(1, 2, 2)
+            else:
+                ax_rope = fig.add_subplot(1, 1, 1, projection='3d')
         else:
-            fig, ax_rope = plt.subplots(figsize=(13, 5))
+            if self.show_tension:
+                fig, (ax_rope, ax_tension) = plt.subplots(1, 2, figsize=(14, 6))
+            else:
+                fig, ax_rope = plt.subplots(figsize=(13, 5))
+        
+        if self.show_tension:
+            ax_tension.set_ylim(0, 0.01)
+
         ax_rope.set_ylim(-1, 0.5)
 
-        # Analytical ropes
+        ## Analytical ropes
         fig.subplots_adjust(left=0.15)
         ax_y1 = ax_rope.get_position().y1
         button_height = 0.04
@@ -80,11 +91,11 @@ class Simulation:
             fig.canvas.draw_idle()
         button.on_clicked(draw_analytical_ropes)
         
-        # Info
-        info_ax = fig.add_axes([0.01, 0.9, 0.1, 0.04])
+        ## Info
+        info_ax = fig.add_axes([0.01, 0.9, 0.1, 0.04 + 0.01])
         ####
 
-        # Creates graphs managers ###
+        ### Creates graphs managers ###
         additional_pars = None
         if self.plot_mode == PlotMode.color_tension:
             additional_pars = {"solver": self.solver}
@@ -92,9 +103,10 @@ class Simulation:
         
         analytical_ropes_graph = AnalyticalRopesGraph(ax_rope, self.rope, self.solver, self.rope_cfg)
         
-        tension_graph = TensionGraph(ax_tension, self.solver)
+        if self.show_tension:
+            tension_graph = TensionGraph(ax_tension, self.solver)
 
-        info_widget = Info(info_ax, self.solver, self.time_it)
+        info_widget = Info(info_ax, self.rope, self.solver, self.time_it)
         ###
 
         info_widget.init()
@@ -109,7 +121,7 @@ class Simulation:
             while i < self.num_frame_steps:
                 self.time_it.decorator(self.solver.update)
                 i += 1
-            
+    
             info_widget.update()
             rope_graph.update()
             if self.show_tension:
@@ -121,7 +133,7 @@ class Simulation:
             # update_buttom(None)
 
             fig.canvas.draw_idle()
-
+            
         ani = animation.FuncAnimation(fig, update, interval=1/(self.fps)*1000)
         
         plt.show()

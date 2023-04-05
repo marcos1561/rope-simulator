@@ -60,7 +60,7 @@ class Point:
     Point mass
     '''
 
-    def __init__(self, pos: np.ndarray, mass:float, vel: np.ndarray = np.zeros(2), damping: float = 0, fix=False) -> None:
+    def __init__(self, pos: np.ndarray, mass:float, vel: np.ndarray = np.zeros(3), damping: float = 0, fix=False) -> None:
         '''
         Parameters:
         -----------
@@ -82,7 +82,7 @@ class Point:
         self.mass = mass
         self.pos = pos
         self.vel = vel
-        self.acel = np.zeros([0, 0])
+        self.acel = np.zeros(3)
         self.damping= damping
     
         self.fix = fix

@@ -32,6 +32,12 @@ def catenary(x0: float, y0: float, n=1000):
 
     return x, y, a
 
+def catenary_a(a: float, gap: float, n=1000):
+    x = np.linspace(0, gap, n)
+    y = a * (np.cosh((x - gap/2)/a) - np.cosh(gap/(2*a)))
+
+    return x, y
+
 class EqSlope:
     '''
     Equation that the slope of an elastic rope must satisfied.

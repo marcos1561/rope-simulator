@@ -125,9 +125,8 @@ class ColorTensionConfig:
     the tension at that point.
     '''
 
-    def __init__(self, max:float = None, min:float = None) -> None:
-        self.max = max
-        self.min = min
+    def __init__(self) -> None:
+        pass
 
 class ElasticRopeConfig:
     '''

@@ -1,7 +1,7 @@
 # rope-simulator
 Simulação física para cordas ou cabos com as extremidades fixas, sob o efeito da gravidade.
 
-No arquivo `main.py`, sete as propriedades da corda, as propriedades dos elementos que modelam a corda, a condição inicial da corda e rode o mesmo, para ver um gráfico contendo a corda sendo simulada conforme o tempo passa.
+No arquivo `main.py`, sete as propriedades da corda, as propriedades dos elementos que modelam a corda e sua condição inicial. Após rodar o arquivo, será gerado um gráfico contendo a corda sendo simulada conforme o tempo passa.
 
 ## Como usar
 

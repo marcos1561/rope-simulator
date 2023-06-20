@@ -17,7 +17,7 @@ class Simulation:
     Simulated the rope with the given configurations and plot the simulation.
     '''
     def __init__(self, rope_cfg: RopeConfig, element_cfg: ElementConfig, create_cfg: CreateConfig, curve: curves.Curve, 
-        dt:float, rope_plot_mode=PlotMode.points, rope_graph_cfg=None, show_tension=False, match_spring_props=True, fps=120, num_frame_steps=1) -> None:
+        dt:float, rope_plot_mode=PlotMode.points, rope_graph_cfg=None, show_tension=False, match_spring_props=True, fps=60, num_frame_steps=1) -> None:
         self.rope_cfg = rope_cfg
         self.element_cfg = element_cfg
         self.curve = curve
@@ -109,7 +109,7 @@ class Simulation:
             while i < self.num_frame_steps:
                 self.time_it.decorator(self.solver.update)
                 i += 1
-            
+
             info_widget.update()
             rope_graph.update()
             if self.show_tension:
@@ -122,6 +122,12 @@ class Simulation:
 
             fig.canvas.draw_idle()
 
-        ani = animation.FuncAnimation(fig, update, interval=1/(self.fps)*1000)
+        # Save animation
+        # duration = 5 # in seconds
+        # ani = animation.FuncAnimation(fig, update, interval=1/(self.fps)*1000, frames= duration * self.fps)
+        # ani.save("teste.gif", fps=self.fps)
         
+        ani = animation.FuncAnimation(fig, update, interval=1/(self.fps)*1000, frames= 5 * self.fps)
         plt.show()
+        
+

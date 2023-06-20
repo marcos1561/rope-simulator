@@ -15,6 +15,7 @@ from config import ColorTensionConfig, ElasticRopeConfig, RopeConfig
 import analitycal
 from constant import G
 from timer import TimeIt
+from constant import G
 
 class PlotMode:
     points = 0
@@ -116,7 +117,6 @@ class ColorTension(RopeGraph):
             
         self.adjust_limits(y)
 
-
 class AnalyticalRopesGraph:
     class RigidInfo:
         def __init__(self) -> None:
@@ -189,8 +189,11 @@ class AnalyticalRopesGraph:
         self.update_rigid()
         self.update_elastic()
 
-        print("Tensão:", np.linalg.norm(self.elastic_info.tension))
-        print("Tensão horizontal:", abs(self.elastic_info.tension[0]))
+        print("T_H (analítico): ", self.rigid_info.max_tension)
+        print("T_H (simulacao): ", self.solver.spring_forces(self.rope.points[0], [Side.right])[0][0])
+
+        # print("Tensão:", np.linalg.norm(self.elastic_info.tension))
+        # print("Tensão horizontal:", abs(self.elastic_info.tension[0]))
         print()
 
         self.ax.legend()
@@ -246,10 +249,30 @@ class Info:
 
     def get_info(self):
         return (
-            f"Energia: {self.solver.energy():.5f}\n"
-            f"$\Delta$T (ms): {self.time_it.mean_time():.3f}"
+            f"Energia: {self.solver.energy():.5f}  |  "
+            f"$F_R$ (N): {self.total_force()} \n"
+            f"$\Delta$T (ms): {self.time_it.mean_time():.3f} | "
+            f"t (s): {self.solver.time:.3f}"
         )
-            
+    
+    def total_force(self):
+        from constant import G
+        t1 = -self.solver.spring_forces(self.solver.points[0], [Side.right])[0]
+        t2 = -self.solver.spring_forces(self.solver.points[-1], [Side.left])[0]
+
+        total_mass = 0
+        for p in self.solver.points:
+            if p.fix:
+                continue
+            total_mass += p.mass
+
+        weight =  np.array([0, -1]) * G * total_mass 
+        fr = weight + t1 + t2
+        for _, f in self.solver.external_forces:
+            fr += f
+
+        return fr
+
     def init(self):
         self.ax.axis('off')
         s = self.get_info()

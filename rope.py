@@ -46,7 +46,7 @@ class Rope:
         The first and last node are fixed.
         '''
 
-        self.points = [Point(self.curve.curve(0), self.point_mass/2, fix=True)]
+        self.points = [Point(self.curve.curve(0), self.point_mass/2, fix=self.create_cfg.first_fix)]
         s = self.spring_length
 
         while s < self.curve.length:
@@ -63,8 +63,7 @@ class Rope:
         self.points[-1].mass *= 1/2
         self.points[-1].pos = self.curve.curve(self.curve.length)
         
-        if self.create_cfg.last_fix:
-            self.points[-1].fix = True
+        self.points[-1].fix = self.create_cfg.last_fix
 
         self.num_points = len(self.points)
     

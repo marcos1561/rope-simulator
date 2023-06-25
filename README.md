@@ -15,7 +15,7 @@ Primeiro é necessário setar as configurações da simulação, que estão cont
 As seguintes classes de configuração devem ser instanciadas e passadas para o construtor de `Simulation`:
 
 - `RopeConfig`: Propriedades da corda a ser simulada.
-- `RopeConfig`: Propriedades dos elementos que compõem o modelo da corda.
+- `ElementConfig`: Propriedades dos elementos que compõem o modelo da corda.
 - `CreateConfig`: Configuração para a construção da corda.
 
 > O arquivo `main.py` já possui essas classes instanciadas, então é possível apenas editá-lo para suas preferências.
